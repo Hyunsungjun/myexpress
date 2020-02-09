@@ -63,65 +63,68 @@ conn.connect(); //이게 연결하는 코드인가봄
     });
   });
 
-  app.post('/login', function (req, res) { //50-110 정상적으로 만들어진 코드 //app.post인데 프론트에서 서버로 파라메타를 넘길때 post로 넘긴다는 뜻
-    let id = req.body.username; // 51-52 프론트에서 username,password 두개의 파라메타를 전달하고 서버는 이것을 받는다는 의미 
-    let password = req.body.password;
+//   app.post('/login', function (req, res) { //50-110 정상적으로 만들어진 코드 //app.post인데 프론트에서 서버로 파라메타를 넘길때 post로 넘긴다는 뜻
+//     let id = req.body.username; // 51-52 프론트에서 username,password 두개의 파라메타를 전달하고 서버는 이것을 받는다는 의미 
+//     let password = req.body.password;
 
-    let salt = '';
-    let pw = '';
+//     let salt = '';
+//     let pw = '';
     
-    crypto.randomBytes(64, (err, buf) => { //57-81은 로그인시 사용자 pw를 암호화 시켜서 기존에 회원가입한 pw와 비교하는 부분 다만 회원가입부분은 이미 회원가입된 상태에서 로그인 부분 만들어져 있어서 비밀번호와 디비에 저장된 비번을 비교한느 코드
-      if (err) throw err;//57-65는  회원가입 부분에서 다루어야한다 따로이야기 해주신다함 
-      salt = buf.toString('hex');
-    });
+//     crypto.randomBytes(64, (err, buf) => { //57-81은 로그인시 사용자 pw를 암호화 시켜서 기존에 회원가입한 pw와 비교하는 부분 다만 회원가입부분은 이미 회원가입된 상태에서 로그인 부분 만들어져 있어서 비밀번호와 디비에 저장된 비번을 비교한느 코드
+//       if (err) throw err;//57-65는  회원가입 부분에서 다루어야한다 따로이야기 해주신다함 
+//       salt = buf.toString('hex');
+//     });
 
-    crypto.pbkdf2(password, salt, 100000, 64, 'sha512', (err, derivedKey) => {
-      if (err) throw err;
-      pw = derivedKey.toString('hex');
-    });
+//     crypto.pbkdf2(password, salt, 100000, 64, 'sha512', (err, derivedKey) => {
+//       if (err) throw err;
+//       pw = derivedKey.toString('hex');
+//     });
 
-    var user = results[0];
-    crypto.pbkdf2(password, salt, 100000, 64, 'sha512', function (err, derivedKey) {//로그인엔 68-81만 있으면 된다
-      if (err)
-        console.log(err);
-      if (derivedKey.toString('hex') === pw) {
-        req.session.name = id;
-        req.session.save(function () {
-          return res.redirect('/welcome');
-        });
-      }
-      else {
-        return res.render('login', { message: 'please check your password.' });
-      }
-    });//pbkdf2
-  }); // end of app.post
-
-//   app.post('/login', function (req, res) { //83-110 디비에 저장된 비밀번호를 읽어와서 사용자가 입력한 비밀번호화 비교하는 코드
-//   var id = req.body.username;
-//   var pw = req.body.password;
-//   var sql = 'SELECT * FROM user WHERE id=?'; //86번이 디비쪽에 가입된 것을 검색하는데 id로 검색합니다 
-//   conn.query(sql, [id], function (err, results) {
-//   if (err)
-//   console.log(err);
-
-//   if (!results[0]) //id를 조회했을 때 검색 결과가 있다면 회원가입이 된 경우가 아니라면 회원가입이 안되었다고 판단하는 코드 
-//   return res.render('login', { message: 'please check your id.' });
-
-//   var user = results[0];
-//   crypto.pbkdf2(pw, user.salt, 100000, 64, 'sha512', function (err, derivedKey) {
-//   if (err)
-//   console.log(err);
-//   if (derivedKey.toString('hex') === user.password) {
-//   req.session.name = user.name;
-//   req.session.save(function () {
-//   return res.redirect('/welcome');
-//   });
-//   }
-//   else {
-//   return res.render('login', { message: 'please check your password.' });
-//   }
-//   });//pbkdf2
-//   });//query
-//   });
+//     var user = results[0];
+//     crypto.pbkdf2(password, salt, 100000, 64, 'sha512', function (err, derivedKey) {//로그인엔 68-81만 있으면 된다
+//       if (err)
+//         console.log(err);
+//       if (derivedKey.toString('hex') === pw) {
+//         req.session.name = id;
+//         req.session.save(function () {
+//           return res.redirect('/welcome');
+//         });
+//       }
+//       else {
+//         return res.render('login', { message: 'please check your password.' });
+//       }
+//     });//pbkdf2
+//   }); // end of app.post
 // }
-//디비없이 코드를 실행해보기위해 디비부분을 뺏고 회원가입도 없음
+	
+
+  app.post('/login', function (req, res) { //83-110 디비에 저장된 비밀번호를 읽어와서 사용자가 입력한 비밀번호화 비교하는 코드
+  var id = req.body.name;
+  var pw = req.body.password;
+  var sql = 'SELECT * FROM user WHERE id=?'; //86번이 디비쪽에 가입된 것을 검색하는데 id로 검색합니다 
+  conn.query(sql, [id], function (err, results) {
+  var user = results[0];
+  if (err)
+  console.log(err);
+
+  if (!results[0]) //id를 조회했을 때 검색 결과가 있다면 회원가입이 된 경우가 아니라면 회원가입이 안되었다고 판단하는 코드 
+  return res.render('login', { message: 'please check your id.' });
+
+
+  crypto.pbkdf2(pw, user.salt, 100000, 64, 'sha512', function (err, derivedKey) {
+  if (err)
+  console.log(err);
+  if (derivedKey.toString('hex') === user.password) {
+  req.session.name = user.name;
+  req.session.save(function () {
+  return res.redirect('/welcome');
+  });
+  }
+  else {
+  return res.render('login', { message: 'please check your password.' });
+  }
+  });//pbkdf2
+  });//query
+  });
+}
+// 디비없이 코드를 실행해보기위해 디비부분을 뺏고 회원가입도 없음
